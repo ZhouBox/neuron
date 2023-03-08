@@ -145,6 +145,7 @@ add_subdirectory(plugins/ekuiper)
 add_subdirectory(plugins/monitor)
 add_subdirectory(plugins/file)
 add_subdirectory(plugins/udp)
+add_subdirectory(plugins/opcua)
 
 add_subdirectory(simulator)
 

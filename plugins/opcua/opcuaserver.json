@@ -1,0 +1,34 @@
+{
+    "tag_regex": [],
+    "port": {
+        "name": "port",
+        "description": "bind port in udp server",
+        "attribute": "required",
+        "type": "int",
+        "default": 9704,
+        "valid": {
+            "min": 1,
+            "max": 65535
+        }
+    },
+    "username": {
+        "name": "username",
+        "description": "username by opcua server access control",
+        "attribute": "required",
+        "type": "string",
+        "default": "admin",
+        "valid": {
+            "length": 64
+        }
+    },
+    "password": {
+        "name": "password",
+        "description": "password by opcua server access control",
+        "attribute": "required",
+        "type": "string",
+        "default": "public",
+        "valid": {
+            "length": 128
+        }
+    }
+}

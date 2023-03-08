@@ -31,14 +31,14 @@
 
 struct neu_plugin {
     neu_plugin_common_t common;
-    neu_events_t *      udp_server_events;
+    neu_events_t       *udp_server_events;
     int                 udp_server_fd;
     bool                running;
     int                 port;
     int                 buf_size;
-    char *              buffer;
+    char               *buffer;
     int                 index;
-    neu_event_io_t *    event;
+    neu_event_io_t     *event;
     pthread_mutex_t     mutex;
     int                 recv_bytes;
 };
@@ -156,7 +156,7 @@ static int driver_setting(neu_plugin_t *plugin, const char *config)
 {
     neu_json_elem_t port      = { .name = "port", .t = NEU_JSON_INT };
     neu_json_elem_t buf_size  = { .name = "buf_size", .t = NEU_JSON_INT };
-    char *          err_param = NULL;
+    char           *err_param = NULL;
 
     int ret = neu_parse_param(config, &err_param, 2, &port, &buf_size);
     if (ret != 0) {
@@ -203,18 +203,18 @@ static int driver_group_timer(neu_plugin_t *plugin, neu_plugin_group_t *group)
     neu_adapter_update_metric_cb_t update_metric =
         plugin->common.adapter_callbacks->update_metric;
 
+    pthread_mutex_lock(&plugin->mutex);
     utarray_foreach(group->tags, neu_datatag_t *, tag)
     {
         neu_dvalue_t dvalue = { 0 };
         dvalue.type         = NEU_TYPE_STRING;
-        pthread_mutex_lock(&plugin->mutex);
         strncpy(dvalue.value.str, plugin->buffer, plugin->index);
-        plugin->index = 0;
-        memset(plugin->buffer, 0, plugin->buf_size);
-        pthread_mutex_unlock(&plugin->mutex);
         plugin->common.adapter_callbacks->driver.update(
             plugin->common.adapter, group->group_name, tag->name, dvalue);
     }
+    plugin->index = 0;
+    memset(plugin->buffer, 0, plugin->buf_size);
+    pthread_mutex_unlock(&plugin->mutex);
     update_metric(plugin->common.adapter, NEU_METRIC_RECV_BYTES,
                   plugin->recv_bytes, NULL);
     return 0;
