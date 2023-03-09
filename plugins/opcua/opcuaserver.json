@@ -2,7 +2,7 @@
     "tag_regex": [],
     "port": {
         "name": "port",
-        "description": "bind port in udp server",
+        "description": "bind port in opcua server",
         "attribute": "required",
         "type": "int",
         "default": 9704,
@@ -16,7 +16,7 @@
         "description": "username by opcua server access control",
         "attribute": "required",
         "type": "string",
-        "default": "admin",
+        "default": "neuron",
         "valid": {
             "length": 64
         }
