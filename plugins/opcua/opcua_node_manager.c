@@ -83,6 +83,22 @@ opcua_node_t *opcua_node_manager_find(opcua_node_manager_t *manager,
     }
 }
 
+opcua_node_t *opcua_node_manager_find_by_prename(opcua_node_manager_t *manager,
+                                        const char           *prename)
+{
+    opcua_node_t *node = NULL, *tmp = NULL;
+
+    HASH_ITER(hh, manager->nodes, node, tmp)
+    {
+        if (node->prename) {
+            if (strcmp(node->prename, prename) == 0) {
+                return node;
+            }
+        }
+    }
+    return NULL;
+}
+
 void opcua_node_manager_add(opcua_node_manager_t *manager, opcua_node_t *node)
 {
     opcua_node_t *tmp = NULL;
@@ -99,7 +115,7 @@ void opcua_node_manager_remove(opcua_node_manager_t *manager,
     opcua_node_t *tmp = NULL;
 
     HASH_FIND_STR(manager->nodes, node->name, tmp);
-    if (!tmp) {
+    if (tmp) {
         HASH_DEL(manager->nodes, tmp);
         node_free(tmp);
     }

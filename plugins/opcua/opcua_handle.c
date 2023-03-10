@@ -557,11 +557,32 @@ int handle_unsubscribe_group(neu_plugin_t          *plugin,
                 plugin->server, group_node->nodeid, deleteReferences);
             if (UA_STATUSCODE_GOOD != ret) {
                 plog_warn(plugin, "del group(%s) node fail!", group);
+                pthread_mutex_unlock(&plugin->mutex);
                 return NEU_ERR_COMMAND_EXECUTION_FAILED;
             }
         }
         opcua_node_manager_remove(plugin->group_manager, group_node);
     }
+
+    opcua_node_t *had =
+        opcua_node_manager_find_by_prename(plugin->group_manager, driver);
+
+    if (!had) {
+        opcua_node_t *driver_node =
+            opcua_node_manager_find(plugin->driver_manager, driver);
+        if (driver_node && !UA_NodeId_isNull(&driver_node->nodeid)) {
+            UA_Boolean    deleteReferences = true;
+            UA_StatusCode ret              = UA_Server_deleteNode(
+                plugin->server, driver_node->nodeid, deleteReferences);
+            if (UA_STATUSCODE_GOOD != ret) {
+                plog_warn(plugin, "del driver(%s) node fail!", driver);
+                pthread_mutex_unlock(&plugin->mutex);
+                return NEU_ERR_COMMAND_EXECUTION_FAILED;
+            }
+        }
+        opcua_node_manager_remove(plugin->driver_manager, driver_node);
+    }
+
     pthread_mutex_unlock(&plugin->mutex);
     return NEU_ERR_SUCCESS;
 }

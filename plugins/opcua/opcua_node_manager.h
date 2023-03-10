@@ -45,6 +45,9 @@ void opcua_node_manager_destroy(opcua_node_manager_t *manager);
 opcua_node_t *opcua_node_manager_find(opcua_node_manager_t *manager,
                                       const char           *name);
 
+opcua_node_t * opcua_node_manager_find_by_prename(opcua_node_manager_t *manager,
+                                        const char           *prename);
+
 void opcua_node_manager_add(opcua_node_manager_t *manager, opcua_node_t *node);
 
 void opcua_node_manager_remove(opcua_node_manager_t *manager,
