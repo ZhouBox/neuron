@@ -117,6 +117,7 @@ int neu_mqtt_client_set_cache_sync_interval(neu_mqtt_client_t *client,
 int neu_mqtt_client_set_zlog_category(neu_mqtt_client_t *client,
                                       zlog_category_t *  cat);
 
+int neu_mqtt_client_pre_open(neu_mqtt_client_t *client);
 int neu_mqtt_client_open(neu_mqtt_client_t *client);
 int neu_mqtt_client_close(neu_mqtt_client_t *client);
 

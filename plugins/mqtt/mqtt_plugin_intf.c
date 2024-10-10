@@ -357,7 +357,7 @@ int mqtt_plugin_config(neu_plugin_t *plugin, const char *setting)
         neu_mqtt_client_free(plugin->client);
         plugin->client = neu_mqtt_client_new(config.version);
     }
-
+    neu_mqtt_client_pre_open(plugin->client);
     rv = config_mqtt_client(plugin, plugin->client, &config);
     if (0 != rv) {
         rv = NEU_ERR_MQTT_INIT_FAILURE;
@@ -403,6 +403,14 @@ int mqtt_plugin_start(neu_plugin_t *plugin)
     if (NULL == plugin->client) {
         plog_error(plugin, "mqtt client is NULL due to init failure");
         rv = NEU_ERR_MQTT_IS_NULL;
+        goto end;
+    }
+
+    neu_mqtt_client_pre_open(plugin->client);
+
+    rv = config_mqtt_client(plugin, plugin->client, &plugin->config);
+    if (0 != rv) {
+        rv = NEU_ERR_MQTT_INIT_FAILURE;
         goto end;
     }
 
