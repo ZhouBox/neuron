@@ -75,7 +75,8 @@ class TestAppsExportImport:
                     "port": 1883,
                     "ssl": False
                 },
-                "groups": []
+                "groups": [],
+                "tags": ""
             }]
 
             response = api.put_apps(apps)
@@ -114,7 +115,8 @@ class TestAppsExportImport:
                     "port": 1883,
                     "ssl": False
                 },
-                "groups": []
+                "groups": [],
+                "tags": ""
             }]
 
             response = api.put_apps(apps)
@@ -157,6 +159,7 @@ class TestAppsExportImport:
                     "port": 1883,
                     "ssl": False
                 },
+                "tags": "",
                 "groups": [{
                     "driver": non_exist_driver,
                     "group": "group1"
