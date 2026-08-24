@@ -613,11 +613,16 @@ static int unsub_app(context_t *ctx, neu_resp_subscribe_info_t *info);
 
 static inline bool is_default_app_node(const char *name, const char *plugin)
 {
-    return (0 == strcmp("DataStorage", name) &&
-            0 == strcmp("Datalayers", plugin)) ||
-        (0 == strcmp("DataProcessing", name) &&
-         0 == strcmp("eKuiper", plugin)) ||
+    bool is_default = (0 == strcmp("DataProcessing", name) &&
+                       0 == strcmp("eKuiper", plugin)) ||
         (0 == strcmp("monitor", name) && 0 == strcmp("Monitor", plugin));
+
+#ifdef NEU_ENABLE_DATALAYERS
+    is_default = is_default ||
+        (0 == strcmp("DataStorage", name) && 0 == strcmp("Datalayers", plugin));
+#endif
+
+    return is_default;
 }
 
 static void get_apps_context_next(context_t *ctx, neu_reqresp_type_e type,
