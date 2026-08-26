@@ -85,8 +85,6 @@ const char *usage_text =
 "    --config_file <PATH> startup parameter configuration file\n"
 "    --config_dir <DIR>   directory from which neuron reads configuration\n"
 "    --plugin_dir <DIR>   directory from which neuron loads plugin lib files\n"
-"    --syslog_host <HOST> syslog server host to which neuron will send logs\n"
-"    --syslog_port <PORT> syslog server port (default 541 if not provided)\n"
 "    --sub_filter_error The subscribe attribute only detects the last read value and does not report any error tags\n"
 "\n";
 // clang-format on
@@ -360,24 +358,6 @@ static inline int load_env(neu_cli_args_t *args, char **log_level_out,
             *plugin_dir_out = strdup(plugin_dir);
         }
 
-        char *syslog_host = getenv(NEU_ENV_SYSLOG_HOST);
-        if (NULL != syslog_host) {
-            if (NULL != args->syslog_host) {
-                free(args->syslog_host);
-            }
-            args->syslog_host = strdup(syslog_host);
-        }
-
-        char *syslog_port = getenv(NEU_ENV_SYSLOG_PORT);
-        if (NULL != syslog_port) {
-            int port = atoi(syslog_port);
-            if (port < 1 || 65535 < port) {
-                printf("neuron %s setting invalid!\n", NEU_ENV_SYSLOG_PORT);
-                ret = -1;
-                break;
-            }
-            args->syslog_port = port;
-        }
     } while (0);
 
     return ret;
@@ -419,8 +399,6 @@ static inline int load_config_file(int argc, char *argv[],
         { .name = "disable_auth", .t = NEU_JSON_INT },
         { .name = "ip", .t = NEU_JSON_STR },
         { .name = "port", .t = NEU_JSON_INT },
-        { .name = "syslog_host", .t = NEU_JSON_STR },
-        { .name = "syslog_port", .t = NEU_JSON_INT },
         { .name = "sub_filter_error", .t = NEU_JSON_INT },
     };
 
@@ -484,27 +462,9 @@ static inline int load_config_file(int argc, char *argv[],
                 break;
             }
 
-            if (elems[3].v.val_str != NULL) {
-                if (strlen(elems[3].v.val_str) > 0) {
-                    args->syslog_host = strdup(elems[3].v.val_str);
-                }
-            } else {
-                printf("config file %s syslog_host setting error!\n",
-                       config_file);
-                break;
-            }
-
-            if (0 < elems[4].v.val_int && elems[4].v.val_int < 65536) {
-                args->syslog_port = elems[4].v.val_int;
-            } else {
-                printf("config file %s syslog_port setting invalid!\n",
-                       config_file);
-                break;
-            }
-
-            if (elems[5].v.val_int == 1) {
+            if (elems[3].v.val_int == 1) {
                 args->sub_filter_err = true;
-            } else if (elems[5].v.val_int == 0) {
+            } else if (elems[3].v.val_int == 0) {
                 args->sub_filter_err = false;
             } else {
                 printf("config file %s sub_filter_error setting error!\n",
@@ -537,10 +497,6 @@ static inline int load_config_file(int argc, char *argv[],
         free(elems[1].v.val_str);
     }
 
-    if (elems[3].v.val_str != NULL) {
-        free(elems[3].v.val_str);
-    }
-
     return ret;
 }
 
@@ -565,8 +521,6 @@ void neu_cli_args_init(neu_cli_args_t *args, int argc, char *argv[])
         { "config_dir", required_argument, NULL, 'c' },
         { "plugin_dir", required_argument, NULL, 'p' },
         { "stop", no_argument, NULL, 's' },
-        { "syslog_host", required_argument, NULL, 'S' },
-        { "syslog_port", required_argument, NULL, 'P' },
         { "sub_filter_error", no_argument, NULL, 'f' },
         { "node", required_argument, NULL, 'n' },
         { NULL, 0, NULL, 0 },
@@ -645,22 +599,6 @@ void neu_cli_args_init(neu_cli_args_t *args, int argc, char *argv[])
                 free(plugin_dir);
             }
             plugin_dir = strdup(optarg);
-            break;
-        case 'P': {
-            int syslog_port = atoi(optarg);
-            if (syslog_port < 1 || 65535 < syslog_port) {
-                fprintf(stderr, "%s: option '--syslog_port' invalid : `%s`\n",
-                        argv[0], optarg);
-                goto quit;
-            }
-            args->syslog_port = syslog_port;
-            break;
-        }
-        case 'S':
-            if (args->syslog_host) {
-                free(args->syslog_host);
-            }
-            args->syslog_host = strdup(optarg);
             break;
         case 'f':
             args->sub_filter_err = true;
@@ -756,6 +694,5 @@ void neu_cli_args_fini(neu_cli_args_t *args)
         free(args->plugin_dir);
         free(args->node_name);
         free(args->ip);
-        free(args->syslog_host);
     }
 }
