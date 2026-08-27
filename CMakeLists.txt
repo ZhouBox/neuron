@@ -9,6 +9,11 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# Datalayers is no longer part of the default NeuronEX package. Keep the
+# implementation available for standalone/legacy builds, but avoid pulling in
+# Apache Arrow unless it is explicitly requested.
+option(ENABLE_DATALAYERS "Build the Datalayers northbound plugin" OFF)
+
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Debug")
 endif()
@@ -80,6 +85,9 @@ set(PERSIST_SOURCES
     src/persist/json/persist_json_plugin.c)
 aux_source_directory(src/parser NEURON_SRC_PARSE)
 aux_source_directory(src/otel NEURON_SRC_OTEL)
+if(NOT ENABLE_DATALAYERS)
+  list(FILTER NEURON_SRC_PARSE EXCLUDE REGEX "neu_json_datalayers\\.c$")
+endif()
 set(NEURON_BASE_SOURCES
     src/base/tag.c
     src/base/neu_plugin_common.c
@@ -174,11 +182,14 @@ set(NEURON_SOURCES
     plugins/restful/cid_handle.c
     plugins/restful/ede_handle.c
     plugins/restful/tpy_handle.c
-    plugins/restful/datalayers_handle.c
     plugins/restful/rest.c
     plugins/restful/user.c
     plugins/restful/simulator_handle.c
     simulator/modbus_tcp_simulator.c)
+
+if(ENABLE_DATALAYERS)
+  list(APPEND NEURON_SOURCES plugins/restful/datalayers_handle.c)
+endif()
 
 set(CMAKE_BUILD_RPATH ./)
 add_executable(neuron)
@@ -186,6 +197,10 @@ target_sources(neuron PRIVATE ${NEURON_SOURCES})
 target_include_directories(neuron PRIVATE include/neuron src plugins)
 target_link_libraries(neuron dl neuron-base sqlite3 -lm xml2)
 target_link_options(neuron PRIVATE "LINKER:--dynamic-list-data")
+
+if(ENABLE_DATALAYERS)
+  target_compile_definitions(neuron PRIVATE NEU_ENABLE_DATALAYERS)
+endif()
 
 #copy file for run
 file(COPY ${CMAKE_SOURCE_DIR}/zlog.conf DESTINATION ${CMAKE_BINARY_DIR}/config)
@@ -202,7 +217,9 @@ add_subdirectory(plugins/mqtt)
 add_subdirectory(plugins/ekuiper)
 add_subdirectory(plugins/file)
 add_subdirectory(plugins/monitor)
-add_subdirectory(plugins/datalayers)
+if(ENABLE_DATALAYERS)
+  add_subdirectory(plugins/datalayers)
+endif()
 add_subdirectory(plugins/kafka)
 
 add_subdirectory(simulator)
