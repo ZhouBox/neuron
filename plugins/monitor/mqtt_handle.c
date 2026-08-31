@@ -216,7 +216,7 @@ static char *generate_event_json(neu_plugin_t *plugin, neu_reqresp_type_e event,
             plog_error(plugin, "calloc fail");
             break;
         }
-        for (u_int16_t i = 0; i < add_gtag->n_group; i++) {
+        for (uint16_t i = 0; i < add_gtag->n_group; i++) {
             json_req.add_gtag.groups[i].group =
                 strdup(add_gtag->groups[i].group);
             json_req.add_gtag.groups[i].n_tag    = add_gtag->groups[i].n_tag;
@@ -228,7 +228,7 @@ static char *generate_event_json(neu_plugin_t *plugin, neu_reqresp_type_e event,
                 plog_error(plugin, "calloc fail");
                 break;
             }
-            for (u_int16_t j = 0; j < add_gtag->groups[i].n_tag; j++) {
+            for (uint16_t j = 0; j < add_gtag->groups[i].n_tag; j++) {
                 json_req.add_gtag.groups[i].tags[j].type =
                     add_gtag->groups[i].tags[j].type;
                 json_req.add_gtag.groups[i].tags[j].name =
@@ -249,7 +249,7 @@ static char *generate_event_json(neu_plugin_t *plugin, neu_reqresp_type_e event,
         neu_json_encode_by_fn(&json_req, neu_json_encode_add_gtags_req,
                               &json_str);
 
-        for (u_int16_t i = 0; i < add_gtag->n_group; i++) {
+        for (uint16_t i = 0; i < add_gtag->n_group; i++) {
             free(json_req.add_gtag.groups[i].group);
             free(json_req.add_gtag.groups[i].tags);
         }
