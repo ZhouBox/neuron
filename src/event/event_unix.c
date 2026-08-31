@@ -22,13 +22,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/queue.h>
 
 #include "event/event.h"
 
 #ifdef NEU_PLATFORM_DARWIN
 
 #include <sys/event.h>
+#include <sys/queue.h>
 
 struct neu_event_timer {
     int                      id;
